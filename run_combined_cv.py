@@ -212,15 +212,18 @@ def main():
     }
 
     img_dir = os.path.join(args.data_path, 'images')
-    df = pd.read_excel(args.data_path + '/train_case1_230329_ML.xlsx', header=0, engine='openpyxl')
-    test_df = pd.read_excel(args.data_path + '/test_case1_230329_ML.xlsx', header=0, engine='openpyxl')
+    df = pd.read_excel(args.data_path + '/data_list/train_case1_230517_ML.xlsx', header=0, engine='openpyxl')
+    test_df = pd.read_excel(args.data_path + '/data_list/test_case1_230517_ML.xlsx', header=0, engine='openpyxl')
 
     size = (1920, 2944)
     normalize = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # 추후 수정, mean & std로..
     tf = transforms.Compose([transforms.ToTensor(),
                              normalize])
 
-    Y = df['cls_adj']
+    # valid set을 class0:class1=1:1 로 주기 위함 
+    ratio = pd.read_excel(args.data_path + '/data_list/train_valid_same_ratio.xlsx', header=0, engine='openpyxl')
+    Y = ratio['cls_adj']
+    
     scaler = StandardScaler()
     splits = StratifiedKFold(n_splits=10, shuffle=True, random_state=1234)
     foldperf = {}
