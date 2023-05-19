@@ -241,7 +241,9 @@ def main():
         # ratio = int(max_samples / min_samples)  # 3배 (대략 0:71, 1:21)
 
         cls1_valid_df = re_valid_df.loc[cls1_indices]
-        re_valid_df = pd.concat([re_valid_df, cls1_valid_df, cls1_valid_df])  # 대략 0:71, 1:63
+        re_valid_df = pd.concat([re_valid_df,
+                                 cls1_valid_df,
+                                 cls1_valid_df]).reset_index(drop=True)  # 대략 0:71, 1:63
 
         # clinical data feature scaling
         scaled_train_df, scaled_valid_df, scaled_test_df = scaled_datasets(re_train_df,
