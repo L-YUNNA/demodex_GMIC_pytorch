@@ -25,8 +25,6 @@ import argparse
 import random
 import shutil
 import pickle
-import tqdm
-import os
 
 import torch
 import torch.nn as nn
