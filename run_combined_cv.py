@@ -220,9 +220,7 @@ def main():
     tf = transforms.Compose([transforms.ToTensor(),
                              normalize])
 
-    # valid set을 class0:class1=1:1 로 주기 위함 
-    ratio = pd.read_excel(args.data_path + '/data_list/train_valid_same_ratio.xlsx', header=0, engine='openpyxl')
-    Y = ratio['cls_adj']
+    Y = df['cls_adj']
     
     scaler = StandardScaler()
     splits = StratifiedKFold(n_splits=10, shuffle=True, random_state=1234)
@@ -235,6 +233,17 @@ def main():
         # split train, valid
         re_train_df = df.loc[train_idx].reset_index(drop=True)
         re_valid_df = df.loc[val_idx].reset_index(drop=True)
+
+        # change the valid set's class ratio to  1:1
+        cls0_indices = np.where(re_valid_df['cls_adj'] == 0)[0]
+        cls1_indices = np.where(re_valid_df['cls_adj'] == 1)[0]
+
+        # max_samples = max(len(cls0_indices), len(cls1_indices))
+        # min_samples = min(len(cls0_indices), len(cls1_indices))
+        # ratio = int(max_samples / min_samples)  # 3배 (대략 0:71, 1:21)
+
+        cls1_valid_df = re_valid_df.loc[cls1_indices]
+        re_valid_df = pd.concat([re_valid_df, cls1_valid_df, cls1_valid_df])  # 대략 0:71, 1:63
 
         # clinical data feature scaling
         scaled_train_df, scaled_valid_df, scaled_test_df = scaled_datasets(re_train_df,
