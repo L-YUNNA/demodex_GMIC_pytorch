@@ -405,8 +405,9 @@ class LocalNetwork(AbstractMILUnit):
         :return:
         """
         # forward propagte using ResNet
-        ### res = self.parent_module.dn_resnet(x_crop.expand(-1, 3, -1 , -1))
-        res = self.parent_module.dn_resnet(x_crop)        # gmic.py에서 copr_variables의 채널 3이 되게 했으므로 위 expand 안해줘도 됨
+        # RGB 버전 수정
+        # res = self.parent_module.dn_resnet(x_crop.expand(-1, 3, -1 , -1))
+        res = self.parent_module.dn_resnet(x_crop)       # RGB 버전 수정 후, gmic.py에서 crop_variables 채널 3이므로 위 expand 필요 없음
         # global average pooling
         res = res.mean(dim=2).mean(dim=2)
         return res
@@ -444,7 +445,7 @@ class AttentionModule(AbstractMILUnit):
         attn_score = self.parent_module.mil_attn_w(attn_projection)
         # use softmax to map score to attention
         attn_score_reshape = attn_score.view(batch_size, num_crops)
-        attn = F.softmax(attn_score_reshape, dim=1)   # 각 패치의 attentino_Score는 softmax 결과네
+        attn = F.softmax(attn_score_reshape, dim=1)
 
         # final hidden vector
         z_weighted_avg = torch.sum(attn.unsqueeze(-1) * h_crops, 1)
@@ -453,6 +454,7 @@ class AttentionModule(AbstractMILUnit):
         y_crops = torch.sigmoid(self.parent_module.classifier_linear(z_weighted_avg))
         return z_weighted_avg, attn, y_crops    # z, self.patch_attns, self.y_local
 
+# clinical data module - MLP
 class MLP(nn.Module):
     def __init__(self):    # num_classes
         super(MLP, self).__init__()
